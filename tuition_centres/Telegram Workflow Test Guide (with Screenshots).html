@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telegram Workflow — Test Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    color: #1a1a1a;
+    padding: 48px;
+    max-width: 860px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #555; font-size: 12px; margin-bottom: 36px; }
+
+  /* ── Sections ── */
+  .section-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1565C0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #1565C0;
+    padding-bottom: 6px;
+    margin: 36px 0 20px;
+  }
+
+  /* ── Preflight checklist ── */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+  }
+  .checklist li input[type="checkbox"] {
+    margin-top: 2px;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    accent-color: #1565C0;
+  }
+  .checklist li code {
+    background: #eef2ff;
+    color: #1a1a6e;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11.5px;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+
+  /* ── Test cards ── */
+  .test-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 0;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+
+  .test-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #777;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 16px 0;
+  }
+
+  .test-title {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 4px 16px 2px;
+  }
+
+  .test-desc {
+    color: #444;
+    padding: 0 16px 12px;
+    font-size: 12.5px;
+  }
+
+  .warning-box {
+    margin: 0 16px 12px;
+    padding: 8px 12px;
+    background: #fff8e1;
+    border-left: 3px solid #f59e0b;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #6b4c00;
+  }
+
+  .warning-box.solo {
+    background: #e8f5e9;
+    border-left-color: #43a047;
+    color: #1b5e20;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .col {
+    padding: 12px 16px;
+  }
+
+  .col:first-child {
+    border-right: 1px solid #e0e0e0;
+  }
+
+  .col-header {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .col:first-child .col-header { color: #2e7d32; }
+  .col:last-child .col-header { color: #1565c0; }
+
+  .col ol { padding-left: 16px; display: flex; flex-direction: column; gap: 5px; }
+  .col ol li { font-size: 12.5px; }
+
+  .msg {
+    display: inline;
+    font-style: italic;
+    color: #333;
+    background: #f5f5f5;
+    padding: 1px 6px;
+    border-radius: 3px;
+    border-left: 2px solid #aaa;
+    font-size: 12px;
+  }
+
+  code {
+    background: #eef2ff;
+    color: #1a1a6e;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11.5px;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+
+  .pass-box {
+    background: #f0fdf4;
+    border-top: 1px solid #bbf7d0;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #14532d;
+  }
+
+  .pass-box strong { color: #15803d; }
+
+  /* ── Screenshot placeholder ── */
+  .screenshot-block {
+    margin: 16px 0 32px;
+    page-break-inside: avoid;
+  }
+
+  .screenshot-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #9e9e9e;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .screenshot-box {
+    border: 1.5px dashed #bdbdbd;
+    border-radius: 6px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bdbdbd;
+    font-size: 12px;
+    background: #fafafa;
+  }
+
+  /* ── Results tracker ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    font-weight: 600;
+    color: #555;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .status { font-weight: 700; color: #f59e0b; font-size: 11px; letter-spacing: 0.04em; }
+
+  .notes-cell { min-width: 200px; color: #999; font-size: 11px; font-style: italic; }
+
+  /* ── Troubleshooting ── */
+  .trouble-table th { background: #f5f5f5; }
+  .trouble-table td { font-size: 12px; vertical-align: top; }
+  .trouble-table td:first-child { font-weight: 600; white-space: nowrap; }
+  .trouble-table td:nth-child(2) { color: #666; }
+
+  /* ── Quick ref ── */
+  .ref-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 12px;
+  }
+
+  .ref-col h4 { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .ref-col ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .ref-col ul li { font-size: 12px; }
+  .ref-col ul li strong { color: #1565C0; }
+
+  .footer-note {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 11px;
+    color: #888;
+    text-align: center;
+  }
+
+  @media print {
+    body { padding: 32px; }
+    .test-card { page-break-inside: avoid; }
+    .screenshot-block { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Telegram Workflow — Test Guide</h1>
+<p class="subtitle">For Zenith Education Studio &nbsp;·&nbsp; Two-person test: Admin (Ajitesh) + Parent (Friend) &nbsp;·&nbsp; Generated 2026-05-10</p>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="section-header">Section 1 — Before You Start (Admin)</div>
+
+<p style="margin-bottom:14px; font-size:12.5px; color:#444;">Complete all items below before calling your friend. If any are missing, fix them first.</p>
+
+<ul class="checklist">
+  <li>
+    <input type="checkbox">
+    <span><strong>ngrok is running</strong> — terminal shows <code>Forwarding https://unshackle-idealism-cardstock.ngrok-free.dev → http://localhost:3000</code>. If it's not, run <code>ngrok http 3000</code> in a new terminal.</span>
+  </li>
+  <li>
+    <input type="checkbox">
+    <span><strong>Dev server is running</strong> — <code>npm run dev</code> is active in a separate terminal. Visit <code>http://localhost:3000</code> to confirm.</span>
+  </li>
+  <li>
+    <input type="checkbox">
+    <span><strong>NEXT_PUBLIC_APP_URL is set</strong> — <code>.env.local</code> has <code>NEXT_PUBLIC_APP_URL=https://unshackle-idealism-cardstock.ngrok-free.dev</code>. If you restarted the dev server since last session, verify this is still there.</span>
+  </li>
+  <li>
+    <input type="checkbox">
+    <span><strong>Telegram bot is connected</strong> — open <code>http://localhost:3000/dashboard/settings</code> and confirm the Telegram card shows "Connected".</span>
+  </li>
+  <li>
+    <input type="checkbox">
+    <span><strong>Admin Telegram is linked</strong> — Settings → Admin notifications card shows "Linked". If not, generate a fresh linking code and send <code>/linkadmin &lt;code&gt;</code> to the bot.</span>
+  </li>
+  <li>
+    <input type="checkbox">
+    <span><strong>Google Calendar is connected</strong> — Settings → Google Calendar shows "Connected". Required for Tests 3 and 4.</span>
+  </li>
+  <li>
+    <input type="checkbox">
+    <span><strong>3 test classes exist</strong> — open <code>http://localhost:3000/dashboard/classes</code> and confirm: <em>P5 Mathematics @ Tampines Hub (seats available), Sec 3 A-Math @ Bishan Junction 8 (FULL), JC1 H2 Mathematics @ Jurong East JEM (seats available)</em>.</span>
+  </li>
+  <li>
+    <input type="checkbox">
+    <span><strong>Send your friend the bot link</strong> — share <code>https://t.me/&lt;YourBotUsername&gt;</code> with your friend and ask her to open it and tap Start. She should see a greeting (or blank; doesn't matter). Have her ready to chat.</span>
+  </li>
+</ul>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="section-header">Section 2 — Test Cases</div>
+
+<!-- ── TEST 1 ── -->
+<div class="test-card">
+  <div class="test-label">Test 1</div>
+  <div class="test-title">Basic FAQ — Bot answers a general question</div>
+  <div class="test-desc">Verifies the core RAG + chat engine works over Telegram.</div>
+
+  <div class="columns">
+    <div class="col">
+      <div class="col-header">Parent (Your Friend)</div>
+      <ol>
+        <li>Open Telegram, find the bot.</li>
+        <li>Send: <span class="msg">Hi, what subjects do you offer?</span></li>
+        <li>Send: <span class="msg">How much is P5 Math?</span></li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-header">Admin (You)</div>
+      <ol>
+        <li>Watch — no action needed for this test.</li>
+        <li>Confirm bot responds within ~5 seconds.</li>
+        <li>Check <code>/dashboard/conversations</code> — a new Telegram conversation should appear.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pass-box">
+    <strong>✓ Pass if:</strong> Bot replies with subject list and mentions P5 Math at $320/month, Wed 5–6:30pm, Tampines Hub. Conversation appears in dashboard with channel badge "Telegram".
+  </div>
+</div>
+
+<div class="screenshot-block">
+  <div class="screenshot-label">Test 1 — Screenshot / Notes</div>
+  <div class="screenshot-box">Paste screenshot here if anything looks wrong</div>
+</div>
+
+<!-- ── TEST 2 ── -->
+<div class="test-card">
+  <div class="test-label">Test 2</div>
+  <div class="test-title">Scope Guard — Bot refuses off-topic questions</div>
+  <div class="test-desc">Verifies the bot stays in lane and doesn't hallucinate answers about unrelated topics.</div>
+
+  <div class="columns">
+    <div class="col">
+      <div class="col-header">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">What's the weather like today?</span></li>
+        <li>Send: <span class="msg">Can you help me with my child's homework?</span></li>
+        <li>Send: <span class="msg">What do you think of other tuition centres?</span></li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-header">Admin (You)</div>
+      <ol>
+        <li>Watch the bot replies.</li>
+        <li>Confirm it does NOT attempt to answer any of these.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pass-box">
+    <strong>✓ Pass if:</strong> Bot politely redirects all three with something like "Sorry, I can only help with things related to Zenith Education Studio — fees, classes, bookings and so on."
+  </div>
+</div>
+
+<div class="screenshot-block">
+  <div class="screenshot-label">Test 2 — Screenshot / Notes</div>
+  <div class="screenshot-box">Paste screenshot here if anything looks wrong</div>
+</div>
+
+<!-- ── TEST 3 ── -->
+<div class="test-card">
+  <div class="test-label">Test 3</div>
+  <div class="test-title">Trial Booking (Happy Path) — Parent books P5 Math</div>
+  <div class="test-desc">Full booking flow: bot collects details, confirms, writes booking row, creates Google Calendar event, sends admin ping.</div>
+
+  <div class="warning-box">
+    ⚠ <strong>Before starting:</strong> Tell your friend to give realistic-ish info but use your own real email as the parent email so you can verify the calendar invite arrives.
+  </div>
+
+  <div class="columns">
+    <div class="col">
+      <div class="col-header">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">Hi, I'd like to book a trial for P5 Math</span></li>
+        <li>Bot will ask for details one at a time. Provide:
+          <ul style="margin-top:5px; padding-left:14px; list-style:disc; display:flex; flex-direction:column; gap:3px;">
+            <li>Child's name: <strong>Sarah</strong></li>
+            <li>Your name: <strong>Mrs Tan</strong></li>
+            <li>Phone: <strong>+6591234567</strong></li>
+            <li>Email: <em>(use your real email so you get the invite)</em></li>
+          </ul>
+        </li>
+        <li>When bot summarises and asks "Shall I lock that in?" — send: <span class="msg">Yes please</span></li>
+        <li>Note the confirmation message — it should include date, time, and Tampines Hub address.</li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-header">Admin (You)</div>
+      <ol>
+        <li>Watch your Telegram for a 🎉 <strong>New trial booking</strong> ping. Should arrive within seconds of your friend confirming.</li>
+        <li>Check the ping contains: Sarah, P5 Mathematics, Tampines Hub, next Wednesday 5–6:30pm.</li>
+        <li>Open <code>/dashboard/bookings</code> — new row should appear with "Cal. synced" badge and centre "Tampines Hub".</li>
+        <li>Check your Google Calendar — event "Trial: Sarah — Mathematics (P5)" on next Wednesday 5pm SGT.</li>
+        <li>Check your email — Google Calendar invite should have arrived from the calendar.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pass-box">
+    <strong>✓ Pass if:</strong> (1) Admin gets Telegram 🎉 ping. (2) Booking row in dashboard with synced badge. (3) Calendar event on correct date/time with Tampines Hub as venue. (4) Parent's Telegram receives the calendar invite line "I've also sent a calendar invite to…".
+  </div>
+</div>
+
+<div class="screenshot-block">
+  <div class="screenshot-label">Test 3 — Screenshot / Notes</div>
+  <div class="screenshot-box">Paste screenshot here if anything looks wrong</div>
+</div>
+
+<!-- ── TEST 4 ── -->
+<div class="test-card">
+  <div class="test-label">Test 4</div>
+  <div class="test-title">Waitlist — Parent tries to book the full Sec 3 A-Math class</div>
+  <div class="test-desc">Verifies the bot detects a full class and routes the parent to the waitlist instead of booking.</div>
+
+  <div class="columns">
+    <div class="col">
+      <div class="col-header">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">I want to book Sec 3 A-Math for my son</span></li>
+        <li>Provide details when asked (son's name: <strong>Ryan</strong>, phone: <strong>+6598765432</strong>).</li>
+        <li>When bot offers the waitlist, say: <span class="msg">Yes, please add us to the waitlist</span></li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-header">Admin (You)</div>
+      <ol>
+        <li>Watch for 📝 <strong>New waitlist entry</strong> ping in your Telegram. Check it shows Ryan + position number.</li>
+        <li>Open <code>/dashboard/waitlist</code> — Ryan should appear under the Sec 3 A-Math group with his waitlist position.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pass-box">
+    <strong>✓ Pass if:</strong> Bot does NOT create a booking (it's full). Instead routes to waitlist. Admin gets 📝 ping. Waitlist row appears in dashboard with correct position number.
+  </div>
+</div>
+
+<div class="screenshot-block">
+  <div class="screenshot-label">Test 4 — Screenshot / Notes</div>
+  <div class="screenshot-box">Paste screenshot here if anything looks wrong</div>
+</div>
+
+<!-- ── TEST 5 ── -->
+<div class="test-card">
+  <div class="test-label">Test 5</div>
+  <div class="test-title">Escalation + Admin Takeover — Parent complains, admin steps in</div>
+  <div class="test-desc">Full escalation loop: parent is upset → bot flags it → admin gets pinged → admin takes over → admin replies directly to parent via dashboard → parent receives it in Telegram → admin resolves.</div>
+
+  <div class="warning-box">
+    ⚠ <strong>Before starting:</strong> Make sure you're logged into the dashboard at <code>http://localhost:3000/dashboard/conversations</code> and can see it during the test.
+  </div>
+
+  <div class="columns">
+    <div class="col">
+      <div class="col-header">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">I'm very unhappy — the teacher was late last week and nobody apologised</span></li>
+        <li>Bot should reply with something like "I understand your concern, let me connect you with our team…"</li>
+        <li>Wait for a direct message from the admin (this comes via the same bot chat).</li>
+        <li>Reply to whatever the admin sends.</li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-header">Admin (You)</div>
+      <ol>
+        <li>Watch your Telegram — a 🚨 <strong>Parent escalation</strong> ping should arrive with the parent's message and a link to the conversation.</li>
+        <li>Tap the link — opens <code>/dashboard/conversations/&lt;id&gt;</code>.</li>
+        <li>Click <strong>"Take over"</strong> — amber banner appears: "You've taken over this conversation".</li>
+        <li>Type in the reply box: <span class="msg">Hi Mrs Tan, this is the centre manager. I'm so sorry to hear this — let me look into it right away. Can I call you back in the next 30 minutes?</span></li>
+        <li>Click <strong>Send</strong>.</li>
+        <li>Watch for your friend's reply to appear <em>live</em> in the conversation viewer (without refreshing).</li>
+        <li>Once resolved, click <strong>"Mark resolved"</strong>.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pass-box">
+    <strong>✓ Pass if:</strong> (1) Admin gets 🚨 ping. (2) Conversation viewer shows "Take over" button. (3) After takeover, bot stops auto-replying. (4) Admin's typed reply appears in your friend's Telegram chat (sent by the bot but with your words). (5) Friend's next message appears in the dashboard viewer in real time (Supabase Realtime). (6) After "Mark resolved", conversation status in the list changes to "closed".
+    <br><br>
+    <span style="color:#166534; font-size:11.5px;"><strong>Note on real-time:</strong> The friend's reply should appear in the dashboard without you refreshing the page. If it doesn't appear, wait 5 seconds — Supabase Realtime can have a short connection warmup.</span>
+  </div>
+</div>
+
+<div class="screenshot-block">
+  <div class="screenshot-label">Test 5 — Screenshot / Notes</div>
+  <div class="screenshot-box">Paste screenshot here if anything looks wrong</div>
+</div>
+
+<!-- ── TEST 6 ── -->
+<div class="test-card">
+  <div class="test-label">Test 6</div>
+  <div class="test-title">PDPA Opt-Out — Parent sends STOP</div>
+  <div class="test-desc">Verifies the opt-out flow closes the conversation and stops the bot from responding.</div>
+
+  <div class="columns">
+    <div class="col">
+      <div class="col-header">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">STOP</span></li>
+        <li>Try sending another message after: <span class="msg">Actually wait, I have a question</span></li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-header">Admin (You)</div>
+      <ol>
+        <li>Check <code>/dashboard/conversations</code> — the conversation should be marked "closed".</li>
+        <li>After the second message, the bot should reply with "This chat has been closed…" and not engage further.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pass-box">
+    <strong>✓ Pass if:</strong> STOP gets confirmation reply. Conversation marked closed in dashboard. Follow-up message gets a static "closed" response, not a bot answer.
+  </div>
+</div>
+
+<div class="screenshot-block">
+  <div class="screenshot-label">Test 6 — Screenshot / Notes</div>
+  <div class="screenshot-box">Paste screenshot here if anything looks wrong</div>
+</div>
+
+<!-- ── TEST 7 ── -->
+<div class="test-card">
+  <div class="test-label">Test 7</div>
+  <div class="test-title">Web Widget → Telegram Opt-In Deep Link</div>
+  <div class="test-desc">Verifies that a parent who books on the website can tap a link to connect their Telegram for future reminders.</div>
+
+  <div class="warning-box solo">
+    ⚠ <strong>You do this one alone.</strong> Your friend doesn't need to be involved.
+  </div>
+
+  <div class="columns">
+    <div class="col">
+      <div class="col-header">You — Acting as Parent</div>
+      <ol>
+        <li>Open <code>http://localhost:3000/test.html</code> in a browser.</li>
+        <li>Start a fresh conversation (click ↻ reset button).</li>
+        <li>Book a JC1 H2 Math trial: provide name, phone, and a real email address.</li>
+        <li>Confirm the booking.</li>
+        <li>Look for the footer block in the bot's confirmation reply:<br>
+          <span class="msg" style="display:block; margin-top:5px;">💬 Get reminders &amp; updates on Telegram → https://t.me/YourBot?start=b_&lt;uuid&gt;</span>
+        </li>
+        <li>On your phone, tap that link → Telegram opens → tap Start.</li>
+        <li>Bot should reply: "✅ You're linked. I'll send reminders and updates here for Sarah's trial."</li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="col-header">You — Verifying as Admin</div>
+      <ol>
+        <li>Check <code>/dashboard/bookings</code> — new booking row should appear.</li>
+        <li>In Supabase Studio, open <strong>students</strong> table → find the student just created → check <code>telegram_chat_id</code> column is now populated.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pass-box">
+    <strong>✓ Pass if:</strong> Web booking confirmation shows the Telegram deep-link line. Tapping it opens the bot. Bot confirms the link. Student row in DB has <code>telegram_chat_id</code> set.
+  </div>
+</div>
+
+<div class="screenshot-block">
+  <div class="screenshot-label">Test 7 — Screenshot / Notes</div>
+  <div class="screenshot-box">Paste screenshot here if anything looks wrong</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="section-header">Section 3 — Results Tracker</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:40px;">#</th>
+      <th>Test</th>
+      <th style="width:100px;">Result</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Basic FAQ</td>
+      <td><span class="status">TO TEST</span></td>
+      <td class="notes-cell">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Scope guard</td>
+      <td><span class="status">TO TEST</span></td>
+      <td class="notes-cell">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Trial booking (happy path)</td>
+      <td><span class="status">TO TEST</span></td>
+      <td class="notes-cell">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Waitlist flow</td>
+      <td><span class="status">TO TEST</span></td>
+      <td class="notes-cell">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Escalation + admin takeover</td>
+      <td><span class="status">TO TEST</span></td>
+      <td class="notes-cell">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>PDPA opt-out</td>
+      <td><span class="status">TO TEST</span></td>
+      <td class="notes-cell">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>Web widget → Telegram deep link</td>
+      <td><span class="status">TO TEST</span></td>
+      <td class="notes-cell">&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="section-header">Section 4 — If Something Goes Wrong</div>
+
+<table class="trouble-table">
+  <thead>
+    <tr>
+      <th>Symptom</th>
+      <th>Likely Cause</th>
+      <th>Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Friend messages bot, no reply</td>
+      <td>ngrok tunnel expired or dev server crashed</td>
+      <td>Check ngrok terminal — restart if needed. Check dev server terminal. Then re-send the message.</td>
+    </tr>
+    <tr>
+      <td>Bot replies but takes 30+ seconds</td>
+      <td>OpenAI API cold start or slow connection</td>
+      <td>Normal on first message. Should be ~3–5s after warm-up.</td>
+    </tr>
+    <tr>
+      <td>🎉 admin ping doesn't arrive</td>
+      <td>Admin Telegram not linked or bot token expired</td>
+      <td>Settings → Admin notifications → re-link via <code>/linkadmin</code>.</td>
+    </tr>
+    <tr>
+      <td>Calendar event not created</td>
+      <td>Google Calendar disconnected or token expired</td>
+      <td>Settings → Google Calendar → disconnect and reconnect.</td>
+    </tr>
+    <tr>
+      <td>Admin reply doesn't reach friend</td>
+      <td>Telegram bot token or channel_user_id mismatch</td>
+      <td>Check dev server terminal for <code>[telegram webhook] send failed</code>. Reconnect the bot in Settings.</td>
+    </tr>
+    <tr>
+      <td>Realtime doesn't update dashboard</td>
+      <td>Migration 009 not applied or Realtime not enabled</td>
+      <td>Run migration 009 in Supabase. Then Supabase Studio → Database → Replication → confirm <code>messages</code> and <code>conversations</code> are in the publication.</td>
+    </tr>
+    <tr>
+      <td>Deep link from web doesn't show bot</td>
+      <td><code>telegram_bot_username</code> not populated</td>
+      <td>Settings → Telegram → disconnect → reconnect. This backfills the username.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="section-header">Section 5 — Quick Reference</div>
+
+<div class="ref-grid">
+  <div class="ref-col">
+    <h4>URLs you'll need</h4>
+    <ul>
+      <li>Dashboard: <code>http://localhost:3000/dashboard</code></li>
+      <li>Conversations: <code>http://localhost:3000/dashboard/conversations</code></li>
+      <li>Bookings: <code>http://localhost:3000/dashboard/bookings</code></li>
+      <li>Waitlist: <code>http://localhost:3000/dashboard/waitlist</code></li>
+      <li>Settings: <code>http://localhost:3000/dashboard/settings</code></li>
+      <li>Widget test: <code>http://localhost:3000/test.html</code></li>
+    </ul>
+  </div>
+  <div class="ref-col">
+    <h4>Test classes (Zenith)</h4>
+    <ul>
+      <li><strong>P5 Mathematics</strong> — Wed 5–6:30pm, Ms Tan, Tampines Hub, $320/mo, seats available</li>
+      <li><strong>Sec 3 A-Math</strong> — Sat 10–11:30am, Mr Lim, Bishan Junction 8, $380/mo, <strong>FULL</strong></li>
+      <li><strong>JC1 H2 Mathematics</strong> — Tue 7–9pm, Dr Wong, Jurong East JEM, $480/mo, seats available</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer-note">
+  To save as PDF: open this file in Chrome → File → Print → Change destination to "Save as PDF" → Save
+</div>
+
+</body>
+</html>

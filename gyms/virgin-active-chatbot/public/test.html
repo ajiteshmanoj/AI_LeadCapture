@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zenith — Widget Test Page</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      max-width: 720px;
+      margin: 60px auto;
+      padding: 0 24px;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    p.lede { color: #6b7280; margin-top: 0; }
+    .hint {
+      background: #f3f4f6;
+      border-left: 3px solid #0ea5e9;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin: 24px 0;
+    }
+    code { background: #e5e7eb; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Zenith Education Studio</h1>
+  <p class="lede">Test page for the embeddable chatbot widget.</p>
+
+  <div class="hint">
+    Click the chat bubble in the bottom-right to start chatting.
+    The widget is talking to your local <code>/api/chat</code> with the Zenith org_id.
+  </div>
+
+  <h2>Things to ask</h2>
+  <ul>
+    <li>How much is JC2 with two subjects?</li>
+    <li>Where is your Jurong East centre?</li>
+    <li>Got free trial or not?</li>
+    <li>What subjects do you offer for Sec 4?</li>
+    <li>Sibling discount got?</li>
+    <li>I want to book a trial for my P5 son for Math</li>
+    <li>What time do you close on Saturday?</li>
+    <li>Do you offer JC Chemistry?</li>
+  </ul>
+
+  <script
+    src="/widget.js"
+    data-org-id="00000000-0000-0000-0000-000000000002"
+    data-color="#0ea5e9"
+    data-bot-name="Zen"
+    data-welcome="Hi! I'm Zen from Zenith Education Studio 😊 How can I help?"
+    data-api-url="http://localhost:3000"
+    defer
+  ></script>
+</body>
+</html>

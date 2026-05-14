@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telegram Workflow Test Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 13px; color: #1a1a1a; background: #fff; padding: 40px; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #555; margin-bottom: 32px; }
+  h2 { font-size: 15px; font-weight: 700; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #1e3a5f; color: #1e3a5f; text-transform: uppercase; letter-spacing: 0.05em; }
+  h3 { font-size: 13px; font-weight: 700; margin: 16px 0 6px; color: #111; }
+  p { margin-bottom: 8px; line-height: 1.5; }
+  ul, ol { padding-left: 20px; margin-bottom: 8px; }
+  li { margin-bottom: 4px; line-height: 1.5; }
+  code { background: #f1f3f5; border: 1px solid #dee2e6; border-radius: 3px; padding: 1px 5px; font-family: "Courier New", monospace; font-size: 11.5px; }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+  .role-card { border: 1px solid #dee2e6; border-radius: 6px; padding: 12px; }
+  .role-card.admin { border-left: 4px solid #1e3a5f; }
+  .role-card.parent { border-left: 4px solid #16a34a; }
+  .role-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .role-title.admin { color: #1e3a5f; }
+  .role-title.parent { color: #16a34a; }
+  .test-block { border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px; margin-bottom: 14px; }
+  .test-number { display: inline-block; background: #1e3a5f; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; }
+  .test-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .verify { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 8px 12px; margin-top: 10px; font-size: 12px; }
+  .verify strong { color: #15803d; }
+  .prereq { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 4px; padding: 8px 12px; margin-bottom: 10px; font-size: 12px; }
+  .prereq strong { color: #c2410c; }
+  .setup-checklist { list-style: none; padding: 0; }
+  .setup-checklist li { padding: 5px 0; border-bottom: 1px solid #f3f4f6; display: flex; align-items: flex-start; gap: 8px; }
+  .setup-checklist li:last-child { border-bottom: none; }
+  .checkbox { width: 16px; height: 16px; border: 2px solid #9ca3af; border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+  .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 8px 12px; margin: 10px 0; font-size: 12px; color: #1d4ed8; }
+  .msg { font-style: italic; color: #374151; background: #f9fafb; border-left: 3px solid #9ca3af; padding: 4px 10px; margin: 4px 0; border-radius: 0 4px 4px 0; }
+  .page-break { page-break-before: always; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  th { background: #1e3a5f; color: white; text-align: left; padding: 7px 10px; font-weight: 600; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; }
+  tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .tag-pass { background: #dcfce7; color: #15803d; }
+  .tag-fail { background: #fee2e2; color: #b91c1c; }
+  .tag-check { background: #e0f2fe; color: #0369a1; }
+  @media print {
+    body { padding: 20px; }
+    .test-block { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Telegram Workflow — Test Guide</h1>
+<p class="subtitle">For Zenith Education Studio · Two-person test: Admin (Ajitesh) + Parent (Friend) · Generated 2026-05-10</p>
+
+<!-- ============================================================ -->
+<h2>Section 1 — Before You Start (Admin)</h2>
+
+<p>Complete all items below before calling your friend. If any are missing, fix them first.</p>
+
+<ul class="setup-checklist">
+  <li><span class="checkbox"></span> <div><strong>ngrok is running</strong> — terminal shows <code>Forwarding https://unshackle-idealism-cardstock.ngrok-free.dev → http://localhost:3000</code>. If it's not, run <code>ngrok http 3000</code> in a new terminal.</div></li>
+  <li><span class="checkbox"></span> <div><strong>Dev server is running</strong> — <code>npm run dev</code> is active in a separate terminal. Visit <code>http://localhost:3000</code> to confirm.</div></li>
+  <li><span class="checkbox"></span> <div><strong>NEXT_PUBLIC_APP_URL is set</strong> — <code>.env.local</code> has <code>NEXT_PUBLIC_APP_URL=https://unshackle-idealism-cardstock.ngrok-free.dev</code>. If you restarted the dev server since last session, verify this is still there.</div></li>
+  <li><span class="checkbox"></span> <div><strong>Telegram bot is connected</strong> — open <code>http://localhost:3000/dashboard/settings</code> and confirm the Telegram card shows "Connected".</div></li>
+  <li><span class="checkbox"></span> <div><strong>Admin Telegram is linked</strong> — Settings → Admin notifications card shows "Linked". If not, generate a fresh linking code and send <code>/linkadmin &lt;code&gt;</code> to the bot.</div></li>
+  <li><span class="checkbox"></span> <div><strong>Google Calendar is connected</strong> — Settings → Google Calendar shows "Connected". Required for Tests 3 and 4.</div></li>
+  <li><span class="checkbox"></span> <div><strong>3 test classes exist</strong> — open <code>http://localhost:3000/dashboard/classes</code> and confirm: <em>P5 Mathematics @ Tampines Hub (seats available), Sec 3 A-Math @ Bishan Junction 8 (FULL), JC1 H2 Mathematics @ Jurong East JEM (seats available)</em>.</div></li>
+  <li><span class="checkbox"></span> <div><strong>Send your friend the bot link</strong> — share <code>https://t.me/&lt;YourBotUsername&gt;</code> with your friend and ask her to open it and tap Start. She should see a greeting (or blank; doesn't matter). Have her ready to chat.</div></li>
+</ul>
+
+<!-- ============================================================ -->
+<h2>Section 2 — Test Cases</h2>
+
+<!-- TEST 1 -->
+<div class="test-block">
+  <div class="test-number">TEST 1</div>
+  <div class="test-title">Basic FAQ — Bot answers a general question</div>
+  <p>Verifies the core RAG + chat engine works over Telegram.</p>
+
+  <div class="roles">
+    <div class="role-card parent">
+      <div class="role-title parent">Parent (Your Friend)</div>
+      <ol>
+        <li>Open Telegram, find the bot.</li>
+        <li>Send: <span class="msg">Hi, what subjects do you offer?</span></li>
+        <li>Send: <span class="msg">How much is P5 Math?</span></li>
+      </ol>
+    </div>
+    <div class="role-card admin">
+      <div class="role-title admin">Admin (You)</div>
+      <ol>
+        <li>Watch — no action needed for this test.</li>
+        <li>Confirm bot responds within ~5 seconds.</li>
+        <li>Check <code>/dashboard/conversations</code> — a new Telegram conversation should appear.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="verify">
+    <strong>✓ Pass if:</strong> Bot replies with subject list and mentions P5 Math at $320/month, Wed 5–6:30pm, Tampines Hub. Conversation appears in dashboard with channel badge "Telegram".
+  </div>
+</div>
+
+<!-- TEST 2 -->
+<div class="test-block">
+  <div class="test-number">TEST 2</div>
+  <div class="test-title">Scope Guard — Bot refuses off-topic questions</div>
+  <p>Verifies the bot stays in lane and doesn't hallucinate answers about unrelated topics.</p>
+
+  <div class="roles">
+    <div class="role-card parent">
+      <div class="role-title parent">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">What's the weather like today?</span></li>
+        <li>Send: <span class="msg">Can you help me with my child's homework?</span></li>
+        <li>Send: <span class="msg">What do you think of other tuition centres?</span></li>
+      </ol>
+    </div>
+    <div class="role-card admin">
+      <div class="role-title admin">Admin (You)</div>
+      <ol>
+        <li>Watch the bot replies.</li>
+        <li>Confirm it does NOT attempt to answer any of these.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="verify">
+    <strong>✓ Pass if:</strong> Bot politely redirects all three with something like "Sorry, I can only help with things related to Zenith Education Studio — fees, classes, bookings and so on."
+  </div>
+</div>
+
+<!-- TEST 3 -->
+<div class="test-block page-break">
+  <div class="test-number">TEST 3</div>
+  <div class="test-title">Trial Booking (Happy Path) — Parent books P5 Math</div>
+  <p>Full booking flow: bot collects details, confirms, writes booking row, creates Google Calendar event, sends admin ping.</p>
+
+  <div class="prereq"><strong>⚠ Before starting:</strong> Tell your friend to give realistic-ish info but use your own real email as the parent email so you can verify the calendar invite arrives.</div>
+
+  <div class="roles">
+    <div class="role-card parent">
+      <div class="role-title parent">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">Hi, I'd like to book a trial for P5 Math</span></li>
+        <li>Bot will ask for details one at a time. Provide:
+          <ul>
+            <li>Child's name: <strong>Sarah</strong></li>
+            <li>Your name: <strong>Mrs Tan</strong></li>
+            <li>Phone: <strong>+6591234567</strong></li>
+            <li>Email: <em>(use your real email so you get the invite)</em></li>
+          </ul>
+        </li>
+        <li>When bot summarises and asks "Shall I lock that in?" — send: <span class="msg">Yes please</span></li>
+        <li>Note the confirmation message — it should include date, time, and Tampines Hub address.</li>
+      </ol>
+    </div>
+    <div class="role-card admin">
+      <div class="role-title admin">Admin (You)</div>
+      <ol>
+        <li>Watch your Telegram for a 🎉 <strong>New trial booking</strong> ping. Should arrive within seconds of your friend confirming.</li>
+        <li>Check the ping contains: Sarah, P5 Mathematics, Tampines Hub, next Wednesday 5–6:30pm.</li>
+        <li>Open <code>/dashboard/bookings</code> — new row should appear with "Cal. synced" badge and centre "Tampines Hub".</li>
+        <li>Check your Google Calendar — event "Trial: Sarah — Mathematics (P5)" on next Wednesday 5pm SGT.</li>
+        <li>Check your email — Google Calendar invite should have arrived from the calendar.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="verify">
+    <strong>✓ Pass if:</strong> (1) Admin gets Telegram 🎉 ping. (2) Booking row in dashboard with synced badge. (3) Calendar event on correct date/time with Tampines Hub as venue. (4) Parent's Telegram receives the calendar invite line "I've also sent a calendar invite to…".
+  </div>
+</div>
+
+<!-- TEST 4 -->
+<div class="test-block">
+  <div class="test-number">TEST 4</div>
+  <div class="test-title">Waitlist — Parent tries to book the full Sec 3 A-Math class</div>
+  <p>Verifies the bot detects a full class and routes the parent to the waitlist instead of booking.</p>
+
+  <div class="roles">
+    <div class="role-card parent">
+      <div class="role-title parent">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">I want to book Sec 3 A-Math for my son</span></li>
+        <li>Provide details when asked (son's name: <strong>Ryan</strong>, phone: <strong>+6598765432</strong>).</li>
+        <li>When bot offers the waitlist, say: <span class="msg">Yes, please add us to the waitlist</span></li>
+      </ol>
+    </div>
+    <div class="role-card admin">
+      <div class="role-title admin">Admin (You)</div>
+      <ol>
+        <li>Watch for 📝 <strong>New waitlist entry</strong> ping in your Telegram. Check it shows Ryan + position number.</li>
+        <li>Open <code>/dashboard/waitlist</code> — Ryan should appear under the Sec 3 A-Math group with his waitlist position.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="verify">
+    <strong>✓ Pass if:</strong> Bot does NOT create a booking (it's full). Instead routes to waitlist. Admin gets 📝 ping. Waitlist row appears in dashboard with correct position number.
+  </div>
+</div>
+
+<!-- TEST 5 -->
+<div class="test-block page-break">
+  <div class="test-number">TEST 5</div>
+  <div class="test-title">Escalation + Admin Takeover — Parent complains, admin steps in</div>
+  <p>Full escalation loop: parent is upset → bot flags it → admin gets pinged → admin takes over → admin replies directly to parent via dashboard → parent receives it in Telegram → admin resolves.</p>
+
+  <div class="prereq"><strong>⚠ Before starting:</strong> Make sure you're logged into the dashboard at <code>http://localhost:3000/dashboard/conversations</code> and can see it during the test.</div>
+
+  <div class="roles">
+    <div class="role-card parent">
+      <div class="role-title parent">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">I'm very unhappy — the teacher was late last week and nobody apologised</span></li>
+        <li>Bot should reply with something like "I understand your concern, let me connect you with our team…"</li>
+        <li>Wait for a direct message from the admin (this comes via the same bot chat).</li>
+        <li>Reply to whatever the admin sends.</li>
+      </ol>
+    </div>
+    <div class="role-card admin">
+      <div class="role-title admin">Admin (You)</div>
+      <ol>
+        <li>Watch your Telegram — a 🚨 <strong>Parent escalation</strong> ping should arrive with the parent's message and a link to the conversation.</li>
+        <li>Tap the link — opens <code>/dashboard/conversations/&lt;id&gt;</code>.</li>
+        <li>Click <strong>"Take over"</strong> — amber banner appears: "You've taken over this conversation".</li>
+        <li>Type in the reply box: <span class="msg">Hi Mrs Tan, this is the centre manager. I'm so sorry to hear this — let me look into it right away. Can I call you back in the next 30 minutes?</span></li>
+        <li>Click <strong>Send</strong>.</li>
+        <li>Watch for your friend's reply to appear <em>live</em> in the conversation viewer (without refreshing).</li>
+        <li>Once resolved, click <strong>"Mark resolved"</strong>.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="verify">
+    <strong>✓ Pass if:</strong> (1) Admin gets 🚨 ping. (2) Conversation viewer shows "Take over" button. (3) After takeover, bot stops auto-replying. (4) Admin's typed reply appears in your friend's Telegram chat (sent by the bot but with your words). (5) Friend's next message appears in the dashboard viewer in real time (Supabase Realtime). (6) After "Mark resolved", conversation status in the list changes to "closed".
+  </div>
+
+  <div class="note">
+    <strong>Note on real-time:</strong> The friend's reply should appear in the dashboard without you refreshing the page. If it doesn't appear, wait 5 seconds — Supabase Realtime can have a short connection warmup.
+  </div>
+</div>
+
+<!-- TEST 6 -->
+<div class="test-block">
+  <div class="test-number">TEST 6</div>
+  <div class="test-title">PDPA Opt-Out — Parent sends STOP</div>
+  <p>Verifies the opt-out flow closes the conversation and stops the bot from responding.</p>
+
+  <div class="roles">
+    <div class="role-card parent">
+      <div class="role-title parent">Parent (Your Friend)</div>
+      <ol>
+        <li>Send: <span class="msg">STOP</span></li>
+        <li>Try sending another message after: <span class="msg">Actually wait, I have a question</span></li>
+      </ol>
+    </div>
+    <div class="role-card admin">
+      <div class="role-title admin">Admin (You)</div>
+      <ol>
+        <li>Check <code>/dashboard/conversations</code> — the conversation should be marked "closed".</li>
+        <li>After the second message, the bot should reply with "This chat has been closed…" and not engage further.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="verify">
+    <strong>✓ Pass if:</strong> STOP gets confirmation reply. Conversation marked closed in dashboard. Follow-up message gets a static "closed" response, not a bot answer.
+  </div>
+</div>
+
+<!-- TEST 7 -->
+<div class="test-block">
+  <div class="test-number">TEST 7</div>
+  <div class="test-title">Web Widget → Telegram Opt-In Deep Link</div>
+  <p>Verifies that a parent who books on the website can tap a link to connect their Telegram for future reminders.</p>
+
+  <div class="prereq"><strong>⚠ You do this one alone.</strong> Your friend doesn't need to be involved.</div>
+
+  <div class="roles">
+    <div class="role-card parent">
+      <div class="role-title parent">You — Acting as Parent</div>
+      <ol>
+        <li>Open <code>http://localhost:3000/test.html</code> in a browser.</li>
+        <li>Start a fresh conversation (click ↻ reset button).</li>
+        <li>Book a JC1 H2 Math trial: provide name, phone, and a real email address.</li>
+        <li>Confirm the booking.</li>
+        <li>Look for the footer block in the bot's confirmation reply:<br>
+          <span class="msg">💬 Get reminders &amp; updates on Telegram → https://t.me/YourBot?start=b_&lt;uuid&gt;</span></li>
+        <li>On your phone, tap that link → Telegram opens → tap Start.</li>
+        <li>Bot should reply: "✅ You're linked. I'll send reminders and updates here for Sarah's trial."</li>
+      </ol>
+    </div>
+    <div class="role-card admin">
+      <div class="role-title admin">You — Verifying as Admin</div>
+      <ol>
+        <li>Check <code>/dashboard/bookings</code> — new booking row should appear.</li>
+        <li>In Supabase Studio, open <strong>students</strong> table → find the student just created → check <code>telegram_chat_id</code> column is now populated.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="verify">
+    <strong>✓ Pass if:</strong> Web booking confirmation shows the Telegram deep-link line. Tapping it opens the bot. Bot confirms the link. Student row in DB has <code>telegram_chat_id</code> set.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2 class="page-break">Section 3 — Results Tracker</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Test</th>
+      <th>Result</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>Basic FAQ</td><td><span class="tag tag-check">TO TEST</span></td><td></td></tr>
+    <tr><td>2</td><td>Scope guard</td><td><span class="tag tag-check">TO TEST</span></td><td></td></tr>
+    <tr><td>3</td><td>Trial booking (happy path)</td><td><span class="tag tag-check">TO TEST</span></td><td></td></tr>
+    <tr><td>4</td><td>Waitlist flow</td><td><span class="tag tag-check">TO TEST</span></td><td></td></tr>
+    <tr><td>5</td><td>Escalation + admin takeover</td><td><span class="tag tag-check">TO TEST</span></td><td></td></tr>
+    <tr><td>6</td><td>PDPA opt-out</td><td><span class="tag tag-check">TO TEST</span></td><td></td></tr>
+    <tr><td>7</td><td>Web widget → Telegram deep link</td><td><span class="tag tag-check">TO TEST</span></td><td></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>Section 4 — If Something Goes Wrong</h2>
+
+<table>
+  <thead>
+    <tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Friend messages bot, no reply</td>
+      <td>ngrok tunnel expired or dev server crashed</td>
+      <td>Check ngrok terminal — restart if needed. Check dev server terminal. Then re-send the message.</td>
+    </tr>
+    <tr>
+      <td>Bot replies but takes 30+ seconds</td>
+      <td>OpenAI API cold start or slow connection</td>
+      <td>Normal on first message. Should be ~3–5s after warm-up.</td>
+    </tr>
+    <tr>
+      <td>🎉 admin ping doesn't arrive</td>
+      <td>Admin Telegram not linked or bot token expired</td>
+      <td>Settings → Admin notifications → re-link via <code>/linkadmin</code>.</td>
+    </tr>
+    <tr>
+      <td>Calendar event not created</td>
+      <td>Google Calendar disconnected or token expired</td>
+      <td>Settings → Google Calendar → disconnect and reconnect.</td>
+    </tr>
+    <tr>
+      <td>Admin reply doesn't reach friend</td>
+      <td>Telegram bot token or channel_user_id mismatch</td>
+      <td>Check dev server terminal for <code>[telegram webhook] send failed</code>. Reconnect the bot in Settings.</td>
+    </tr>
+    <tr>
+      <td>Realtime doesn't update dashboard</td>
+      <td>Migration 009 not applied or Realtime not enabled</td>
+      <td>Run migration 009 in Supabase. Then Supabase Studio → Database → Replication → confirm <code>messages</code> and <code>conversations</code> are in the publication.</td>
+    </tr>
+    <tr>
+      <td>Deep link from web doesn't show bot</td>
+      <td><code>telegram_bot_username</code> not populated</td>
+      <td>Settings → Telegram → disconnect → reconnect. This backfills the username.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>Section 5 — Quick Reference</h2>
+
+<div class="roles">
+  <div>
+    <h3>URLs you'll need</h3>
+    <ul>
+      <li>Dashboard: <code>http://localhost:3000/dashboard</code></li>
+      <li>Conversations: <code>http://localhost:3000/dashboard/conversations</code></li>
+      <li>Bookings: <code>http://localhost:3000/dashboard/bookings</code></li>
+      <li>Waitlist: <code>http://localhost:3000/dashboard/waitlist</code></li>
+      <li>Settings: <code>http://localhost:3000/dashboard/settings</code></li>
+      <li>Widget test: <code>http://localhost:3000/test.html</code></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Test classes (Zenith)</h3>
+    <ul>
+      <li><strong>P5 Mathematics</strong> — Wed 5–6:30pm, Ms Tan, Tampines Hub, $320/mo, seats available</li>
+      <li><strong>Sec 3 A-Math</strong> — Sat 10–11:30am, Mr Lim, Bishan Junction 8, $380/mo, <strong>FULL</strong></li>
+      <li><strong>JC1 H2 Mathematics</strong> — Tue 7–9pm, Dr Wong, Jurong East JEM, $480/mo, seats available</li>
+    </ul>
+  </div>
+</div>
+
+<br>
+<p style="text-align:center; font-size:11px; color:#9ca3af; margin-top:24px;">
+  To save as PDF: open this file in Chrome → File → Print → Change destination to "Save as PDF" → Save
+</p>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+node_modules
+.next
+.env
+.env.local
+.env.production.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+public/widget.js
+public/widget.js.map
