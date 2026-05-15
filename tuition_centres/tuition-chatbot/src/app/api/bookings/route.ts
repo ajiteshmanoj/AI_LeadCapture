@@ -63,5 +63,37 @@ export async function PATCH(request: NextRequest) {
     .eq("id", id)
     .eq("org_id", orgId);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // When a trial is marked completed, start the lead nurture sequence.
+  if (status === "completed") {
+    const { data: booking } = await sb
+      .from("bookings")
+      .select("student_id, booking_type, conversations(id, channel)")
+      .eq("id", id)
+      .eq("org_id", orgId)
+      .maybeSingle();
+
+    if (booking?.student_id && booking.booking_type === "trial") {
+      const conv = Array.isArray(booking.conversations)
+        ? booking.conversations[0]
+        : (booking.conversations as { id: string; channel: string } | null);
+
+      const { error: nurtureErr } = await sb.from("lead_nurture").upsert(
+        {
+          org_id: orgId,
+          booking_id: id,
+          student_id: booking.student_id,
+          conversation_id: conv?.id ?? null,
+          channel: conv?.channel ?? "web",
+          step: 0,
+          next_followup_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+          status: "active",
+        },
+        { onConflict: "booking_id", ignoreDuplicates: true },
+      );
+      if (nurtureErr) console.error("[bookings] lead nurture insert failed", nurtureErr);
+    }
+  }
+
   return NextResponse.json({ ok: true });
 }

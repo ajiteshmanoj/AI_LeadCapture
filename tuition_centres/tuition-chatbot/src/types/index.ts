@@ -1,5 +1,31 @@
 export type Channel = "web" | "whatsapp" | "telegram";
 
+export interface LeadNurture {
+  id: string;
+  org_id: string;
+  booking_id: string | null;
+  student_id: string | null;
+  conversation_id: string | null;
+  channel: Channel;
+  step: number;
+  next_followup_at: string | null;
+  status: "active" | "enrolled" | "closed" | "paused";
+  created_at: string;
+}
+
+export interface PaymentReminder {
+  id: string;
+  org_id: string;
+  student_id: string;
+  month_for: string;
+  amount: number;
+  reminder_count: number;
+  last_reminded_at: string | null;
+  status: "pending" | "reminded" | "paid" | "overdue" | "escalated";
+  paid_at: string | null;
+  created_at: string;
+}
+
 export type Intent =
   | "faq"
   | "booking"
@@ -30,6 +56,12 @@ export interface Organisation {
   google_refresh_token: string | null;
   whatsapp_number: string | null;
   telegram_bot_token: string | null;
+  twilio_account_sid: string | null;
+  twilio_auth_token: string | null;
+  twilio_whatsapp_from: string | null;
+  paynow_uen: string | null;
+  paynow_phone: string | null;
+  billing_day: number | null;
   stripe_account_id: string | null;
   telegram_bot_username: string | null;
   admin_telegram_chat_id: string | null;
@@ -126,6 +158,8 @@ export interface Student {
   school: string | null;
   status: "lead" | "trial" | "enrolled" | "withdrawn";
   notes: string | null;
+  telegram_chat_id: string | null;
+  whatsapp_number: string | null;
   created_at: string;
 }
 

@@ -5,6 +5,17 @@ Each session: short bullet list of what changed and why.
 
 ---
 
+## 2026-05-15 — Phase 3 complete + Phase 4 (Lead Nurture + Payment Reminders)
+
+- **WhatsApp integration** (Phase 3 completion): Twilio WhatsApp Business API wired end-to-end. Migration `011` adds `twilio_account_sid / twilio_auth_token / twilio_whatsapp_from` to `organisations`. `src/lib/integrations/whatsapp.ts` wraps the Twilio SDK. Webhook at `/api/webhooks/whatsapp/[orgSlug]` validates Twilio signature, runs chat engine via `waitUntil`. Connect/disconnect APIs at `/api/integrations/whatsapp/`. `WhatsAppConnection` component in settings mirrors the Telegram pattern.
+- **`channels.ts`** now routes WhatsApp through the Twilio REST API alongside Telegram. Web remains a no-op (HTTP response).
+- **Conversations page** got a channel filter bar (All | Website | WhatsApp | Telegram) via search params — server component, no client state added.
+- **Lead Nurture sequences** (Phase 4): `lead_nurture` table (migration `011`). Vercel Cron at `/api/cron/lead-nurture` runs hourly; sends T+24h / T+3d / T+7d follow-up messages via the original channel. When a trial booking is marked `completed` via `/api/bookings` PATCH, a nurture entry is inserted automatically. Dashboard page `/dashboard/lead-nurture` shows pipeline (active/enrolled/closed) with step progress bars.
+- **Payment Reminders** (Phase 4): `payment_reminders` table (migration `011`). Cron at `/api/cron/payment-reminders` runs daily 09:00 SGT; sends Day 1 / Day 5 reminders with PayNow details; escalates to admin Telegram on Day 10.
+- **`vercel.json`** created with cron schedules (lead-nurture every hour, payment-reminders daily 1am UTC = 9am SGT).
+- **Sidebar** adds Lead Nurture nav item.
+- Both builds pass (Next.js type-check + widget esbuild). No `any` introduced.
+
 ## 2026-05-08 — Phase 3 (part 2): admin Telegram notifications
 
 - Migration `007_admin_notifications.sql` adds `admin_telegram_chat_id` +

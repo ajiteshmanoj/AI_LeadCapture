@@ -8,6 +8,7 @@
 
 import { adminClient } from "@/lib/supabase/admin";
 import { sendMessage as telegramSend } from "@/lib/integrations/telegram";
+import { sendMessage as whatsappSend } from "@/lib/integrations/whatsapp";
 import type { Channel } from "@/types";
 
 export interface SendOutcome {
@@ -23,7 +24,6 @@ export async function sendChannelReply(
   text: string,
 ): Promise<SendOutcome> {
   if (channel === "web") {
-    // Web replies travel back through the HTTP response of /api/chat.
     return { ok: true };
   }
 
@@ -33,7 +33,7 @@ export async function sendChannelReply(
 
   const { data: org } = await adminClient()
     .from("organisations")
-    .select("telegram_bot_token, whatsapp_number")
+    .select("telegram_bot_token, twilio_account_sid, twilio_auth_token, twilio_whatsapp_from")
     .eq("id", orgId)
     .single();
 
@@ -48,7 +48,19 @@ export async function sendChannelReply(
   }
 
   if (channel === "whatsapp") {
-    return { ok: false, reason: "WhatsApp not implemented yet" };
+    if (!org?.twilio_account_sid || !org.twilio_auth_token || !org.twilio_whatsapp_from) {
+      return { ok: false, reason: "WhatsApp not connected for this org" };
+    }
+    const res = await whatsappSend(
+      org.twilio_account_sid,
+      org.twilio_auth_token,
+      org.twilio_whatsapp_from,
+      channelUserId,
+      text,
+    );
+    return res.ok
+      ? { ok: true, externalMessageId: res.sid }
+      : { ok: false, reason: res.reason };
   }
 
   return { ok: false, reason: `Unknown channel: ${channel as string}` };

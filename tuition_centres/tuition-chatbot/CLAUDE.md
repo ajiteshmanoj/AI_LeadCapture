@@ -168,8 +168,8 @@ phase table, sprint estimates, and per-feature specs.
 |---|-------|--------|
 | 1 | MVP (chat + RAG + widget + dashboard) | ✅ |
 | 2 | Booking + Google Calendar + Waitlist + Locations | ✅ |
-| 3 | Messaging (WhatsApp + Telegram + unified inbox) | 🟡 Telegram done; WhatsApp + unified inbox pending |
-| 4 | Lead Nurture (post-trial follow-ups + cron infra) | pending |
+| 3 | Messaging (WhatsApp + Telegram + unified inbox) | ✅ |
+| 4 | Lead Nurture (post-trial follow-ups + cron infra) | ✅ |
 | 5 | Payments (PayNow QR + Stripe) | pending |
 | 6 | Reminders (monthly fee + lesson) | pending |
 | 7 | Class management (makeup booking + progress routing) | pending |

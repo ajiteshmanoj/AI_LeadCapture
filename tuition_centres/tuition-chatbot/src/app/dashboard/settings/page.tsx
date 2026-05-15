@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SettingsForm } from "@/components/dashboard/SettingsForm";
 import { CalendarConnection } from "@/components/dashboard/CalendarConnection";
 import { TelegramConnection } from "@/components/dashboard/TelegramConnection";
+import { WhatsAppConnection } from "@/components/dashboard/WhatsAppConnection";
 import { AdminNotifications } from "@/components/dashboard/AdminNotifications";
 import { BrandingForm } from "@/components/dashboard/BrandingForm";
 import { adminClient } from "@/lib/supabase/admin";
@@ -15,7 +16,7 @@ export default async function SettingsPage({
   const org = await getCurrentOrgOrRedirect();
   const { data: notifRow } = await adminClient()
     .from("organisations")
-    .select("admin_telegram_chat_id")
+    .select("admin_telegram_chat_id, twilio_account_sid, slug")
     .eq("id", org.id)
     .single();
   const adminLinked = !!notifRow?.admin_telegram_chat_id;
@@ -60,6 +61,27 @@ export default async function SettingsPage({
             calendarId={org.google_calendar_id ?? "primary"}
             successFlag={searchParams.calendar === "connected"}
             errorFlag={searchParams.calendar_error}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>WhatsApp</CardTitle>
+          <CardDescription>
+            Connect your Twilio WhatsApp number. Parents who message it get the same
+            AI chatbot replies — bookings, FAQs, and all. Required for Growth plan features
+            (lead nurture, payment reminders).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <WhatsAppConnection
+            connected={!!notifRow?.twilio_account_sid}
+            webhookUrl={
+              notifRow?.slug
+                ? `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/whatsapp/${notifRow.slug}`
+                : undefined
+            }
           />
         </CardContent>
       </Card>

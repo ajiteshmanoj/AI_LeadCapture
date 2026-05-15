@@ -14,6 +14,7 @@ import {
   BarChart3,
   LayoutDashboard,
   MapPin,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -26,6 +27,7 @@ const NAV = [
   { href: "/dashboard/locations", label: "Centres", icon: MapPin },
   { href: "/dashboard/documents", label: "Documents", icon: FileText },
   { href: "/dashboard/faqs", label: "FAQs", icon: HelpCircle },
+  { href: "/dashboard/lead-nurture", label: "Lead Nurture", icon: TrendingUp },
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
