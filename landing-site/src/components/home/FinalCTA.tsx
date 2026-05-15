@@ -6,7 +6,7 @@ import { ArrowRight, MessageCircle } from "lucide-react";
 
 export function FinalCTA() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   return (
     <section ref={ref} className="py-24 px-4 bg-gray-900 relative overflow-hidden">

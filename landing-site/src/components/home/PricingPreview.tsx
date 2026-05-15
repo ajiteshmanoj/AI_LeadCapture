@@ -65,7 +65,7 @@ const plans = [
 
 export function PricingPreview() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   return (
     <section ref={ref} className="py-20 px-4 bg-white">
@@ -86,7 +86,7 @@ export function PricingPreview() {
           <p className="text-gray-500 mt-2">$0 setup for the first 10 clients. No lock-in contracts.</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}

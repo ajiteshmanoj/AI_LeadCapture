@@ -58,7 +58,7 @@ const tabs: { id: Tab; label: string; icon: React.ElementType; color: string }[]
 
 export function MultiChannelDemo() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
   const [activeTab, setActiveTab] = useState<Tab>("whatsapp");
 
   const conv = conversations[activeTab];

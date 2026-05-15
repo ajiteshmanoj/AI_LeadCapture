@@ -20,11 +20,11 @@ export function Hero() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left: copy */}
+          {/* Left: copy — starts visible, subtle slide up only */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            initial={{ y: 20 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-6">
@@ -73,11 +73,11 @@ export function Hero() {
             </div>
           </motion.div>
 
-          {/* Right: animated chat */}
+          {/* Right: animated chat — starts visible, subtle slide from right */}
           <motion.div
-            initial={{ opacity: 0, x: 32 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+            initial={{ x: 24 }}
+            animate={{ x: 0 }}
+            transition={{ duration: 0.5, delay: 0.05, ease: "easeOut" }}
             className="flex justify-center lg:justify-end"
           >
             <AnimatedChat />
@@ -88,7 +88,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-16 pt-8 border-t border-gray-200"
         >
           <p className="text-center text-sm text-gray-400 mb-4">Trusted by businesses across Singapore</p>

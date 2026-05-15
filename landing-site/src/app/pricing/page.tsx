@@ -134,7 +134,7 @@ export default function PricingPage() {
 
       {/* Plans */}
       <div className="px-4 pb-20">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
           {plans.map((plan) => (
             <div
               key={plan.name}

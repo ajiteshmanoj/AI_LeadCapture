@@ -27,7 +27,8 @@ const rightChannels: Channel[] = [
 
 export function OmniChannel() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  // margin "0px" means animation fires the moment section hits viewport edge
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   return (
     <section ref={ref} className="py-20 px-4 bg-gradient-to-br from-slate-50 to-indigo-50/30 overflow-hidden">
@@ -35,7 +36,7 @@ export function OmniChannel() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.45 }}
           className="text-center mb-16"
         >
           <span className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">The Platform</span>
@@ -50,28 +51,30 @@ export function OmniChannel() {
           </p>
         </motion.div>
 
-        {/* Desktop hub-and-spoke */}
+        {/* Desktop hub-and-spoke
+            Animation order: (1) brain, (2) connector lines, (3) channel nodes
+            This gives a "brain extends outward to capture channels" feel */}
         <div
           className="hidden md:grid items-center gap-y-8"
           style={{ gridTemplateColumns: "1fr 3.5rem 10rem 3.5rem 1fr" }}
         >
-          {/* Central brain — spans all 4 rows */}
+          {/* 1. Central brain — appears first, spans all 4 rows */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.7 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0.5, type: "spring", stiffness: 120 }}
+            transition={{ duration: 0.4, delay: 0.1, type: "spring", stiffness: 200, damping: 20 }}
             style={{ gridColumn: "3", gridRow: "1 / 5", alignSelf: "center", justifySelf: "center" }}
             className="flex flex-col items-center"
           >
             <div className="relative w-24 h-24">
               <motion.div
-                animate={{ scale: [1, 1.35, 1], opacity: [0.4, 0, 0.4] }}
-                transition={{ duration: 2.2, repeat: Infinity }}
+                animate={inView ? { scale: [1, 1.35, 1], opacity: [0.4, 0, 0.4] } : {}}
+                transition={{ duration: 2.2, repeat: Infinity, delay: 0.6 }}
                 className="absolute inset-0 rounded-full bg-indigo-200"
               />
               <motion.div
-                animate={{ scale: [1, 1.7, 1], opacity: [0.2, 0, 0.2] }}
-                transition={{ duration: 2.2, repeat: Infinity, delay: 0.4 }}
+                animate={inView ? { scale: [1, 1.7, 1], opacity: [0.2, 0, 0.2] } : {}}
+                transition={{ duration: 2.2, repeat: Infinity, delay: 0.9 }}
                 className="absolute inset-0 rounded-full bg-indigo-100"
               />
               <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center shadow-xl shadow-indigo-300/40">
@@ -88,12 +91,13 @@ export function OmniChannel() {
           {leftChannels.flatMap((ch, i) => {
             const Icon = ch.icon;
             return [
+              // 3. Channel node slides in from left
               <motion.div
                 key={ch.sublabel}
                 style={{ gridColumn: "1", gridRow: String(i + 1) }}
-                initial={{ opacity: 0, x: -32 }}
+                initial={{ opacity: 0, x: -28 }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+                transition={{ duration: 0.4, delay: 0.35 + i * 0.08 }}
                 className="flex items-center gap-3 justify-end"
               >
                 <div className="text-right">
@@ -106,13 +110,14 @@ export function OmniChannel() {
                   <Icon className="w-5 h-5 text-white" />
                 </div>
               </motion.div>,
+              // 2. Connector line grows from center outward
               <motion.div
                 key={ch.sublabel + "-line"}
                 style={{ gridColumn: "2", gridRow: String(i + 1), alignSelf: "center" }}
-                initial={{ scaleX: 0 }}
-                animate={inView ? { scaleX: 1 } : {}}
-                transition={{ duration: 0.5, delay: 0.35 + i * 0.1 }}
-                className="h-px w-full bg-gradient-to-r from-gray-300 to-gray-100 origin-left"
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={inView ? { opacity: 1, scaleX: 1 } : {}}
+                transition={{ duration: 0.35, delay: 0.22 + i * 0.06 }}
+                className="h-px w-full bg-gradient-to-l from-gray-300 to-gray-100 origin-right"
               />,
             ];
           })}
@@ -121,20 +126,22 @@ export function OmniChannel() {
           {rightChannels.flatMap((ch, i) => {
             const Icon = ch.icon;
             return [
+              // 2. Connector line grows from center outward
               <motion.div
                 key={ch.sublabel + "-line"}
                 style={{ gridColumn: "4", gridRow: String(i + 1), alignSelf: "center" }}
-                initial={{ scaleX: 0 }}
-                animate={inView ? { scaleX: 1 } : {}}
-                transition={{ duration: 0.5, delay: 0.35 + i * 0.1 }}
-                className="h-px w-full bg-gradient-to-l from-gray-300 to-gray-100 origin-right"
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={inView ? { opacity: 1, scaleX: 1 } : {}}
+                transition={{ duration: 0.35, delay: 0.22 + i * 0.06 }}
+                className="h-px w-full bg-gradient-to-r from-gray-300 to-gray-100 origin-left"
               />,
+              // 3. Channel node slides in from right
               <motion.div
                 key={ch.sublabel}
                 style={{ gridColumn: "5", gridRow: String(i + 1) }}
-                initial={{ opacity: 0, x: 32 }}
+                initial={{ opacity: 0, x: 28 }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+                transition={{ duration: 0.4, delay: 0.35 + i * 0.08 }}
                 className="flex items-center gap-3"
               >
                 <div
@@ -160,7 +167,7 @@ export function OmniChannel() {
                 key={ch.sublabel}
                 initial={{ opacity: 0, y: 16 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
+                transition={{ duration: 0.35, delay: i * 0.05 }}
                 className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm"
               >
                 <div
@@ -180,7 +187,7 @@ export function OmniChannel() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.95 }}
+          transition={{ duration: 0.4, delay: 0.75 }}
           className="text-center mt-12 text-sm text-gray-500 max-w-xl mx-auto"
         >
           All 8 channels feed into one dashboard. One bot. One brain.{" "}

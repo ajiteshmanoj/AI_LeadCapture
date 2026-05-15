@@ -14,7 +14,7 @@ function formatSGD(n: number): string {
 
 export function ROICalculator() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   const [weeklyEnquiries, setWeeklyEnquiries] = useState(DEFAULT_ENQUIRIES);
   const [missRate, setMissRate] = useState(DEFAULT_MISS_RATE);

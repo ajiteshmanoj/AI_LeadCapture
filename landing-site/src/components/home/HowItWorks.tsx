@@ -29,7 +29,7 @@ const steps = [
 
 export function HowItWorks() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   return (
     <section ref={ref} className="py-20 px-4 bg-white">
