@@ -37,3 +37,4 @@ npm-debug.log*
 # Editor
 .vscode/
 .idea/
+.gstack/
