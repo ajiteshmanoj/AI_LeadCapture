@@ -1,5 +1,6 @@
 import { sendMessageStream } from "./api";
 import { widgetCss } from "./styles";
+import { subscribeToConversation, type RealtimeHandle } from "./realtime";
 
 export interface WidgetConfig {
   orgId: string;
@@ -41,6 +42,28 @@ export function renderWidget(config: WidgetConfig) {
   let isOpen = false;
   let isSending = false;
   let disclaimerShown = !!conversationId;
+  let realtime: RealtimeHandle | null = null;
+  const seenMessageIds = new Set<string>();
+
+  function attachRealtime(cid: string) {
+    if (!cid) return;
+    if (realtime) {
+      realtime.close();
+      realtime = null;
+    }
+    realtime = subscribeToConversation(cid, (row) => {
+      // De-dupe: each row has a unique id; we'll see our own bot replies
+      // arrive in Realtime too, but we already rendered them via stream.
+      if (seenMessageIds.has(row.id)) return;
+      seenMessageIds.add(row.id);
+      // We only care about pushes the widget didn't initiate — receptionist
+      // takeover (role='admin'). The bot's own assistant replies are already
+      // rendered live by the SSE stream.
+      if (row.role !== "admin") return;
+      messages.push({ role: "bot", text: row.content });
+      rerender();
+    });
+  }
 
   // ---- Launcher button --------------------------------------------------
   const launcher = document.createElement("button");
@@ -156,7 +179,10 @@ export function renderWidget(config: WidgetConfig) {
         },
         onDone(cid, followup) {
           conversationId = cid;
-          if (cid) localStorage.setItem(STORAGE_KEY, cid);
+          if (cid) {
+            localStorage.setItem(STORAGE_KEY, cid);
+            if (!realtime) attachRealtime(cid);
+          }
           liveBubble.remove();
           messages.push({ role: "bot", text: accumulated || "…" });
           if (followup) messages.push({ role: "bot", text: followup });
@@ -177,6 +203,11 @@ export function renderWidget(config: WidgetConfig) {
     if (!confirm("Start a new chat? Current conversation will be cleared.")) return;
     localStorage.removeItem(STORAGE_KEY);
     conversationId = null;
+    if (realtime) {
+      realtime.close();
+      realtime = null;
+    }
+    seenMessageIds.clear();
     messages.length = 0;
     messages.push({ role: "bot", text: config.welcomeMessage });
     rerender();
@@ -198,6 +229,10 @@ export function renderWidget(config: WidgetConfig) {
     inputEl.style.height = "auto";
     inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";
   });
+
+  // Attach Realtime immediately if we already have a conversation id from
+  // a prior visit — receptionist may reply while the parent is browsing.
+  if (conversationId) attachRealtime(conversationId);
 
   rerender();
 }
