@@ -17,11 +17,18 @@ export interface SendOutcome {
   externalMessageId?: string;
 }
 
+export interface SendOptions {
+  /** Public HTTPS URL of an image to send alongside the text (PayNow QR, etc).
+   *  Telegram → sendPhoto with caption. WhatsApp → Twilio mediaUrl. Web → ignored. */
+  mediaUrl?: string;
+}
+
 export async function sendChannelReply(
   orgId: string,
   channel: Channel,
   channelUserId: string | null,
   text: string,
+  opts: SendOptions = {},
 ): Promise<SendOutcome> {
   if (channel === "web") {
     return { ok: true };
@@ -41,7 +48,9 @@ export async function sendChannelReply(
     if (!org?.telegram_bot_token) {
       return { ok: false, reason: "Telegram bot not connected for this org" };
     }
-    const res = await telegramSend(org.telegram_bot_token, channelUserId, text);
+    const res = await telegramSend(org.telegram_bot_token, channelUserId, text, {
+      photoUrl: opts.mediaUrl,
+    });
     return res.ok
       ? { ok: true, externalMessageId: String(res.messageId) }
       : { ok: false, reason: res.reason };
@@ -57,6 +66,7 @@ export async function sendChannelReply(
       org.twilio_whatsapp_from,
       channelUserId,
       text,
+      { mediaUrl: opts.mediaUrl },
     );
     return res.ok
       ? { ok: true, externalMessageId: res.sid }

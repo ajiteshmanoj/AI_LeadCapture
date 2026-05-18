@@ -59,7 +59,7 @@ export async function GET(req: Request) {
     .from("payment_reminders")
     .select(`
       id, org_id, student_id, amount, reminder_count, month_for,
-      students(student_name, parent_name, telegram_chat_id, whatsapp_number),
+      students(student_name, parent_name, telegram_chat_id, whatsapp_chat_id),
       organisations(twilio_account_sid, paynow_uen, paynow_phone, billing_day)
     `)
     .eq("month_for", currentMonth)
@@ -70,7 +70,7 @@ export async function GET(req: Request) {
 
   for (const reminder of pending ?? []) {
     const student = (reminder as unknown as {
-      students?: { student_name: string; parent_name: string | null; telegram_chat_id: string | null; whatsapp_number: string | null };
+      students?: { student_name: string; parent_name: string | null; telegram_chat_id: string | null; whatsapp_chat_id: string | null };
     }).students;
     const org = (reminder as unknown as {
       organisations?: { twilio_account_sid: string | null; paynow_uen: string | null; paynow_phone: string | null; billing_day: number | null };
@@ -79,18 +79,27 @@ export async function GET(req: Request) {
     const studentName = student?.student_name ?? "your child";
     const paynow = org?.paynow_uen ? `PayNow UEN: ${org.paynow_uen}` : org?.paynow_phone ? `PayNow phone: ${org.paynow_phone}` : "PayNow (ask the centre for details)";
 
+    // Generate a scan-and-pay QR for this exact amount + month reference,
+    // hosted as a public PNG endpoint. Twilio + Telegram fetch the URL when
+    // sending the message. Skip QR when the org has no PayNow proxy configured.
+    const hasPayNow = Boolean(org?.paynow_uen || org?.paynow_phone);
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+    const qrUrl = hasPayNow && appUrl
+      ? `${appUrl}/api/paynow/${reminder.org_id}/qr.png?amount=${reminder.amount}&ref=${encodeURIComponent(reminder.month_for)}`
+      : undefined;
+
     const isFirstReminder = reminder.reminder_count === 0;
     const text = isFirstReminder
-      ? `Hi! ${studentName}'s tuition fee of $${reminder.amount} for ${reminder.month_for} is now due. You can pay via:\n• ${paynow}\n\nReply *PAID* once done and we'll update your records! 🙏`
+      ? `Hi! ${studentName}'s tuition fee of $${reminder.amount} for ${reminder.month_for} is now due. You can pay via:\n• ${paynow}${qrUrl ? "\n• Scan the PayNow QR (attached) — amount pre-filled" : ""}\n\nReply *PAID* once done and we'll update your records! 🙏`
       : `Friendly reminder — ${studentName}'s ${reminder.month_for} fee of $${reminder.amount} is still outstanding. Please arrange at your convenience. Any questions? Just reply here!`;
 
     // Determine best channel: prefer WhatsApp, then Telegram, then skip.
     let channel: Channel = "web";
     let channelUserId: string | null = null;
 
-    if (student?.whatsapp_number && org?.twilio_account_sid) {
+    if (student?.whatsapp_chat_id && org?.twilio_account_sid) {
       channel = "whatsapp";
-      const num = student.whatsapp_number;
+      const num = student.whatsapp_chat_id;
       channelUserId = num.startsWith("whatsapp:") ? num : `whatsapp:${num}`;
     } else if (student?.telegram_chat_id) {
       channel = "telegram";
@@ -98,7 +107,9 @@ export async function GET(req: Request) {
     }
 
     if (channel !== "web" && channelUserId) {
-      const outcome = await sendChannelReply(reminder.org_id, channel, channelUserId, text);
+      const outcome = await sendChannelReply(reminder.org_id, channel, channelUserId, text, {
+        mediaUrl: isFirstReminder ? qrUrl : undefined,
+      });
       if (outcome.ok) {
         await sb
           .from("payment_reminders")

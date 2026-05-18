@@ -12,12 +12,18 @@ export async function sendMessage(
   from: string,
   to: string,
   body: string,
+  opts: { mediaUrl?: string } = {},
 ): Promise<{ ok: true; sid: string } | { ok: false; reason: string }> {
   try {
     const client = twilio(accountSid, authToken);
     const toFormatted = to.startsWith("whatsapp:") ? to : `whatsapp:${to}`;
     const fromFormatted = from.startsWith("whatsapp:") ? from : `whatsapp:${from}`;
-    const msg = await client.messages.create({ from: fromFormatted, to: toFormatted, body });
+    const msg = await client.messages.create({
+      from: fromFormatted,
+      to: toFormatted,
+      body,
+      ...(opts.mediaUrl ? { mediaUrl: [opts.mediaUrl] } : {}),
+    });
     return { ok: true, sid: msg.sid };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);

@@ -48,7 +48,19 @@ export async function sendMessage(
   botToken: string,
   chatId: number | string,
   text: string,
+  opts: { photoUrl?: string } = {},
 ): Promise<{ ok: true; messageId: number } | { ok: false; reason: string }> {
+  if (opts.photoUrl) {
+    // sendPhoto returns the same shape; caption is the text body.
+    const photo = await call<{ message_id: number }>(botToken, "sendPhoto", {
+      chat_id: chatId,
+      photo: opts.photoUrl,
+      caption: text,
+    });
+    if (photo.ok) return { ok: true, messageId: photo.result.message_id };
+    // Fall through to text-only if sendPhoto fails (e.g. unreachable URL).
+  }
+
   const res = await call<{ message_id: number }>(botToken, "sendMessage", {
     chat_id: chatId,
     text,
