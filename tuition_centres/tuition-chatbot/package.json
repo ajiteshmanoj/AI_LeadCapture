@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && bun run build:widget",
+    "build": "next build && npm run build:widget",
     "start": "next start",
     "lint": "next lint",
-    "build:widget": "bun widget/build.ts",
+    "build:widget": "node widget/build.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -41,6 +41,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
+    "esbuild": "^0.24.2",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.33",
     "postcss": "^8.4.47",
