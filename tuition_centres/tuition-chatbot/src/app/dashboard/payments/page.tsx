@@ -18,7 +18,7 @@ export default async function PaymentsPage() {
 
   const { data: orgRow } = await adminClient()
     .from("organisations")
-    .select("paynow_uen, paynow_phone, billing_day, org_name")
+    .select("paynow_uen, paynow_phone, billing_day, name")
     .eq("id", org.id)
     .single();
 

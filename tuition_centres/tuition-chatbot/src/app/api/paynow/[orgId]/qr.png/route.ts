@@ -29,7 +29,7 @@ export async function GET(
 
   const { data: org, error } = await adminClient()
     .from("organisations")
-    .select("org_name, paynow_uen, paynow_phone")
+    .select("name, paynow_uen, paynow_phone")
     .eq("id", params.orgId)
     .single();
 
@@ -49,7 +49,7 @@ export async function GET(
       phone: org.paynow_phone,
       amount,
       reference: ref,
-      merchantName: org.org_name ?? undefined,
+      merchantName: org.name ?? undefined,
       editable: typeof amount !== "number",
     });
     return new NextResponse(new Uint8Array(png), {

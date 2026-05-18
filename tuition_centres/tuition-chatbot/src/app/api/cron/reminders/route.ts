@@ -63,7 +63,7 @@ type ReminderBooking = {
   } | null;
   locations: { name: string | null; address: string | null } | null;
   organisations: {
-    org_name: string | null;
+    name: string | null;
     twilio_account_sid: string | null;
     twilio_auth_token: string | null;
     twilio_whatsapp_from: string | null;
@@ -86,7 +86,7 @@ export async function GET(req: Request) {
       classes ( subject, level, teacher_name ),
       students ( student_name, parent_name, telegram_chat_id, whatsapp_chat_id ),
       locations ( name, address ),
-      organisations ( org_name, twilio_account_sid, twilio_auth_token, twilio_whatsapp_from )
+      organisations ( name, twilio_account_sid, twilio_auth_token, twilio_whatsapp_from )
     `)
     .eq("booking_date", lessonDate)
     .eq("status", "confirmed");
@@ -147,7 +147,7 @@ export async function GET(req: Request) {
       ? b.locations.address
         ? `${b.locations.name}, ${b.locations.address}`
         : b.locations.name
-      : (b.organisations?.org_name ?? "the centre");
+      : (b.organisations?.name ?? "the centre");
 
     const text =
       `Reminder: ${child} has ${subj} tomorrow, ${time} at ${venue}. ` +
